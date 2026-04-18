@@ -29,10 +29,18 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const user = await login(email, password);
-      // Success redirect
-      navigate(user.role === 'admin' ? '/admin' : '/home');
+      // 1. login() now returns the user object thanks to your Context fix
+      const loggedInUser = await login(email, password);
+      
+      // 2. We check if it worked, then navigate
+      if (loggedInUser) {
+        // 'replace: true' wipes the login page from the back-button history
+        const targetPath = loggedInUser.role === 'admin' ? '/admin' : '/home';
+        navigate(targetPath, { replace: true });
+      }
     } catch (err) {
+      // 3. This ONLY runs if the server actually sends a 401/400 error
+      console.error("Login Error:", err);
       setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
     } finally {
       setLoading(false);

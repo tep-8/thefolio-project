@@ -44,8 +44,10 @@ export const AuthProvider = ({ children }) => {
     
     // SAVE THE FULL USER OBJECT (including profilePic)
     localStorage.setItem('user', JSON.stringify(res.data)); 
-    
+
     setUser(res.data); // This updates the Navbar immediately
+    
+    return res.data;
   } catch (err) {
     throw err;
   }
