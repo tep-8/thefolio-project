@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react'; // Added useCallback
-import { useNavigate } from 'react-router-dom'; // Removed Link
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
@@ -7,18 +7,14 @@ const ProfilePage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [myPosts, setMyPosts] = useState([]);
-  const [loading, setLoading] = useState(true); // Line 10
+  const [loading, setLoading] = useState(true);
 
-  // Update Line 12 to this:
-const IMAGE_BASE_URL = process.env.REACT_APP_API_URL 
-  ? process.env.REACT_APP_API_URL.replace('/api', '/uploads/') 
-  : 'http://localhost:5000/uploads/';
+  // Fallback for old local images (new Cloudinary images won't use this)
+  const IMAGE_BASE_URL = 'https://thefolio-project-k8ep.onrender.com/uploads/';
 
-  // Wrap in useCallback to stop the "missing dependency" warning
   const fetchMyPosts = useCallback(async () => {
     try {
       const res = await API.get('/posts');
-      // Filter to show only posts by this user
       const filtered = res.data.filter(post => post.author?._id === user?._id);
       setMyPosts(filtered);
     } catch (err) {
@@ -26,13 +22,22 @@ const IMAGE_BASE_URL = process.env.REACT_APP_API_URL
     } finally {
       setLoading(false);
     }
-  }, [user?._id]); // Only re-run if the user ID changes
+  }, [user?._id]);
 
   useEffect(() => {
     if (user) {
       fetchMyPosts();
     }
-  }, [user, fetchMyPosts]); // Added fetchMyPosts here to satisfy the warning
+  }, [user, fetchMyPosts]);
+
+  /**
+   * Helper to determine image source.
+   * Works for both Profile Pictures and Post Images.
+   */
+  const getImageUrl = (path) => {
+    if (!path) return null;
+    return path.startsWith('http') ? path : `${IMAGE_BASE_URL}${path}`;
+  };
 
   const handleDelete = async (postId) => {
     if (window.confirm("Are you sure you want to remove this story?")) {
@@ -49,24 +54,22 @@ const IMAGE_BASE_URL = process.env.REACT_APP_API_URL
 
   return (
     <div style={styles.pageWrapper}>
+      {/* Profile Header */}
       <section style={styles.headerSection}>
         <div style={styles.profileInfo}>
           
-          {/* UPDATED AVATAR SECTION */}
           <div style={styles.avatar}>
             {user.profilePic ? (
               <img 
-                src={`${IMAGE_BASE_URL}${user.profilePic}`} 
+                src={getImageUrl(user.profilePic)} 
                 alt="Profile" 
                 style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} 
-                // Safety net if the image link is broken
                 onError={(e) => { 
                   e.target.onerror = null; 
                   e.target.src = `https://ui-avatars.com/api/?name=${user.name}&background=1a1a1a&color=D4AF37&bold=true`; 
                 }}
               />
             ) : (
-              /* This matches your gold-on-black aesthetic when no pic exists */
               <img 
                 src={`https://ui-avatars.com/api/?name=${user.name}&background=1a1a1a&color=D4AF37&bold=true&size=128`} 
                 alt="Default Avatar"
@@ -83,11 +86,8 @@ const IMAGE_BASE_URL = process.env.REACT_APP_API_URL
             </div>
           </div>
         </div>
-        {/* ADDED: Navigation to Edit Profile */}
-        <button 
-          onClick={() => navigate('/edit-profile')} 
-          style={styles.editProfileBtn}
-        >
+        
+        <button onClick={() => navigate('/edit-profile')} style={styles.editProfileBtn}>
           Edit Profile
         </button>
       </section>
@@ -103,7 +103,7 @@ const IMAGE_BASE_URL = process.env.REACT_APP_API_URL
               <div style={styles.imagePlaceholder}>
                 {post.image && (
                   <img 
-                    src={`${IMAGE_BASE_URL}${post.image}`} 
+                    src={getImageUrl(post.image)} 
                     alt={post.title} 
                     style={styles.cardImg} 
                   />
@@ -113,16 +113,10 @@ const IMAGE_BASE_URL = process.env.REACT_APP_API_URL
                 <span style={styles.cardCategory}>{post.category?.toUpperCase()}</span>
                 <h3 style={styles.cardTitle}>{post.title}</h3>
                 <div style={styles.cardActions}>
-                  <button 
-                    onClick={() => navigate(`/edit-post/${post._id}`)} 
-                    style={styles.actionLink}
-                  >
+                  <button onClick={() => navigate(`/edit-post/${post._id}`)} style={styles.actionLink}>
                     Edit Story
                   </button>
-                  <button 
-                    onClick={() => handleDelete(post._id)} 
-                    style={{...styles.actionLink, color: '#d32f2f'}}
-                  >
+                  <button onClick={() => handleDelete(post._id)} style={{...styles.actionLink, color: '#d32f2f'}}>
                     Remove
                   </button>
                 </div>
@@ -131,7 +125,6 @@ const IMAGE_BASE_URL = process.env.REACT_APP_API_URL
           ))}
         </div>
       </section>
-
     </div>
   );
 };
@@ -141,7 +134,7 @@ const styles = {
   pageWrapper: { maxWidth: '1100px', margin: '0 auto', padding: '60px 20px', fontFamily: "'Playfair Display', serif" },
   headerSection: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '80px' },
   profileInfo: { display: 'flex', alignItems: 'center', gap: '30px' },
-  avatar: { width: '120px', height: '120px', borderRadius: '50%', backgroundColor: '#1a1a1a', color: '#D4AF37', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', border: '4px solid #fff', boxShadow: '0 0 0 2px #D4AF37', overflow: 'hidden' },
+  avatar: { width: '120px', height: '120px', borderRadius: '50%', backgroundColor: '#1a1a1a', color: '#D4AF37', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '4px solid #fff', boxShadow: '0 0 0 2px #D4AF37', overflow: 'hidden' },
   name: { fontSize: '2.2rem', margin: '0 0 5px 0', color: '#2c3e50' },
   bio: { color: '#666', margin: '0 0 15px 0', fontSize: '1rem' },
   stats: { fontSize: '0.9rem', color: '#333' },
@@ -158,9 +151,6 @@ const styles = {
   cardTitle: { fontSize: '1.3rem', margin: '15px 0 25px 0', color: '#2c3e50' },
   cardActions: { display: 'flex', gap: '20px', borderTop: '1px solid #eee', paddingTop: '15px' },
   actionLink: { background: 'none', border: 'none', padding: 0, fontSize: '0.85rem', color: '#333', cursor: 'pointer', fontFamily: 'inherit' },
-  securityBox: { padding: '30px', border: '1px solid #eee', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' },
-  securityTitle: { margin: 0, fontSize: '1.2rem' },
-  manageBtn: { backgroundColor: '#1a1a1a', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer' },
   loading: { textAlign: 'center', padding: '100px', color: '#D4AF37' }
 };
 

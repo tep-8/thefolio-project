@@ -9,19 +9,29 @@ const Navbar = ({ isDark, setIsDark }) => {
   const isActive = (path) => location.pathname === path;
 
   const handleLogout = () => {
-  logout(); // This should call the logout from Context
-  // Force a clean slate by navigating to the landing page
-  navigate('/', { replace: true }); 
-};
- // Add this helper function here
+    logout();
+    navigate('/', { replace: true }); 
+  };
+
+  /**
+   * HELPER: getAvatar
+   * This handles three scenarios:
+   * 1. Cloudinary URL (starts with http)
+   * 2. Old Local File (needs the Render URL prefix)
+   * 3. No photo (shows elegant gold-on-black initials)
+   */
   const getAvatar = (user) => {
     if (user?.profilePic) {
-      return `${IMAGE_BASE_URL}${user.profilePic}`;
+      // If it's a full Cloudinary URL, use it directly
+      if (user.profilePic.startsWith('http')) {
+        return user.profilePic;
+      }
+      // Fallback for old local uploads still in the database
+      return `https://thefolio-project-k8ep.onrender.com/uploads/${user.profilePic}`;
     }
-    // Fallback to the UI Avatars API if no profile pic exists
-    return `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=FAF9F6&color=D4AF37&bold=true`;
+    // Default initial-based avatar matching your brand colors
+    return `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=1A1A1A&color=D4AF37&bold=true`;
   };
-  const IMAGE_BASE_URL = 'https://thefolio-project-k8ep.onrender.com/uploads/';
 
   return (
     <nav style={styles.nav}>
@@ -53,23 +63,26 @@ const Navbar = ({ isDark, setIsDark }) => {
             {/* PROFILE PICTURE & NAME LINK */}
             <Link to="/profile" style={styles.profileLink}>
               <img 
-  src={getAvatar(user)} 
-  alt="Profile" 
-  style={{
-    width: '35px', 
-    height: '35px', 
-    borderRadius: '50%', 
-    objectFit: 'cover',
-    border: '1px solid #D4AF37' // Adding a thin gold border makes it pop
-  }} 
-  onError={(e) => { e.target.src = 'https://ui-avatars.com/api/?name=User&background=FAF9F6&color=D4AF37'; }}
-/>
+                src={getAvatar(user)} 
+                alt="Profile" 
+                style={{
+                  width: '35px', 
+                  height: '35px', 
+                  borderRadius: '50%', 
+                  objectFit: 'cover',
+                  border: '1px solid #D4AF37'
+                }} 
+                onError={(e) => { 
+                  e.target.onerror = null;
+                  e.target.src = 'https://ui-avatars.com/api/?name=User&background=1A1A1A&color=D4AF37'; 
+                }}
+              />
               <span style={styles.userName}>
                 {user.role === 'admin' ? 'ADMIN' : user.name.toUpperCase()}
               </span>
             </Link>
 
-            {/* If admin, show Dashboard link specifically */}
+            {/* Admin Dashboard link */}
             {user.role === 'admin' && (
               <Link to="/admin" style={isActive('/admin') ? styles.activeAdminLink : styles.adminLink}>
                 DASHBOARD
@@ -118,7 +131,6 @@ const styles = {
   },
   brandGroup: { display: 'flex', alignItems: 'center' },
   logoLink: { textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px' },
-  logoSparkle: { color: COLORS.gold, fontSize: '1.4rem' },
   logoTextWrapper: { display: 'flex', flexDirection: 'column', lineHeight: '1.2' },
   logoTitle: { color: '#FFF', fontSize: '0.95rem', margin: 0, letterSpacing: '3px', fontWeight: '800' },
   logoSub: { color: COLORS.champagne, fontSize: '0.65rem', margin: 0, letterSpacing: '2px', fontWeight: '400' },
@@ -127,7 +139,6 @@ const styles = {
   activeLink: { color: COLORS.gold, textDecoration: 'none', fontSize: '0.7rem', fontWeight: '700', letterSpacing: '1.5px', borderBottom: `2px solid ${COLORS.gold}`, paddingBottom: '5px' },
   actionGroup: { display: 'flex', alignItems: 'center', gap: '25px' },
   postBtn: { color: COLORS.gold, textDecoration: 'none', fontSize: '0.7rem', fontWeight: '700', border: `1px solid ${COLORS.gold}`, padding: '6px 12px', borderRadius: '2px', transition: '0.3s' },
-  
   userSection: { 
     display: 'flex', 
     alignItems: 'center', 
@@ -135,22 +146,7 @@ const styles = {
     borderLeft: '1px solid rgba(255,255,255,0.1)', 
     paddingLeft: '20px' 
   },
-
-  profileLink: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    textDecoration: 'none',
-    cursor: 'pointer'
-  },
-  navAvatar: {
-    width: '32px',
-    height: '32px',
-    borderRadius: '50%',
-    objectFit: 'cover',
-    border: `1.5px solid ${COLORS.gold}`
-  },
-  
+  profileLink: { display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', cursor: 'pointer' },
   adminLink: {
     color: COLORS.champagne,
     textDecoration: 'none',
@@ -170,7 +166,6 @@ const styles = {
     backgroundColor: 'rgba(212, 175, 55, 0.1)',
     border: `1px solid ${COLORS.gold}`
   },
-
   userName: { color: '#FFF', textDecoration: 'none', fontSize: '0.65rem', fontWeight: '600', letterSpacing: '1px', maxWidth: '100px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
   logoutBtn: { backgroundColor: 'transparent', border: '1px solid #666', color: '#999', padding: '4px 12px', borderRadius: '2px', cursor: 'pointer', fontSize: '0.6rem', fontWeight: '700', letterSpacing: '1px' },
   themeToggle: { background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', padding: 0 },

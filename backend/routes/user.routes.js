@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const protect = require('../middleware/auth.middleware');
-const upload = require('../middleware/upload'); // Use your existing Multer config
 const bcrypt = require('bcryptjs');
+const upload = require('../middleware/upload.middleware.js');
 
 // PUT /api/users/profile — Update Name, Bio, and Profile Pic
 router.put('/profile', protect, upload.single('profilePic'), async (req, res) => {
@@ -15,20 +15,21 @@ router.put('/profile', protect, upload.single('profilePic'), async (req, res) =>
             user.bio = req.body.bio || user.bio;
             
             if (req.file) {
-                user.profilePic = req.file.filename;
+                // IMPORTANT: Cloudinary gives us the URL in .path
+                // This will look like: https://res.cloudinary.com/...
+                user.profilePic = req.file.path; 
             }
 
             const updatedUser = await user.save();
             
-            // Return everything EXCEPT the password
             res.json({
                 _id: updatedUser._id,
                 name: updatedUser.name,
                 email: updatedUser.email,
                 role: updatedUser.role,
                 bio: updatedUser.bio,
-                profilePic: updatedUser.profilePic,
-                token: req.headers.authorization.split(' ')[1] // Keep same token
+                profilePic: updatedUser.profilePic, // Now a full link!
+                token: req.headers.authorization.split(' ')[1]
             });
         } else {
             res.status(404).json({ message: 'User not found' });
