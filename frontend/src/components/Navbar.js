@@ -20,7 +20,7 @@ const Navbar = ({ isDark, setIsDark }) => {
       {/* 1. Branding Section */}
       <div style={styles.brandGroup}>
         <Link to="/" style={styles.logoLink}>
-          <img src={"/images/moon.png"} alt="Logo" style={styles.logoImage} />
+          <img src={"/images/moon.png"} alt="Logo" style={{ width: '35px', height: '35px', objectFit: 'contain' }} />
           <div style={styles.logoTextWrapper}>
             <h1 style={styles.logoTitle}>DREAMS REWRITTEN</h1>
             <p style={styles.logoSub}>Not the Dream, Still the Journey</p>

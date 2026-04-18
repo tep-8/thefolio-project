@@ -31,7 +31,7 @@ const SplashPage = () => {
 
       <div className="splash-content" style={styles.content}>
         {/* The Sparkle/Star Icon */}
-        <img src={"/images/moon.png"} alt="Logo" style={styles.logoImage} />
+        <img src={"/images/moon.png"} alt="Logo" style={{ width: '35px', height: '35px', objectFit: 'contain' }} />
         
         <h1 style={styles.title}>Dreams Rewritten</h1>
         <p style={styles.subtitle}>Loading your experience to Grow Beyond the Dream...</p>
