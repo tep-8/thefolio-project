@@ -8,18 +8,21 @@ const upload = require('../middleware/upload.middleware.js');
 // PUT /api/users/profile — Update Name, Bio, and Profile Pic
 router.put('/profile', protect, upload.single('profilePic'), async (req, res) => {
     try {
-        const user = await User.findById(req.user._id);
+        // CRITICAL: .select('+password') ensures the password is loaded 
+        // so the pre-save hook doesn't accidentally overwrite it with garbage.
+        const user = await User.findById(req.user._id).select('+password');
 
         if (user) {
             user.name = req.body.name || user.name;
             user.bio = req.body.bio || user.bio;
             
             if (req.file) {
-                // IMPORTANT: Cloudinary gives us the URL in .path
-                // This will look like: https://res.cloudinary.com/...
+                // Cloudinary path
                 user.profilePic = req.file.path; 
             }
 
+            // Mongoose will now see the password hasn't changed 
+            // and skip the hashing hook thanks to your !isModified check!
             const updatedUser = await user.save();
             
             res.json({
@@ -28,7 +31,7 @@ router.put('/profile', protect, upload.single('profilePic'), async (req, res) =>
                 email: updatedUser.email,
                 role: updatedUser.role,
                 bio: updatedUser.bio,
-                profilePic: updatedUser.profilePic, // Now a full link!
+                profilePic: updatedUser.profilePic,
                 token: req.headers.authorization.split(' ')[1]
             });
         } else {
@@ -38,7 +41,6 @@ router.put('/profile', protect, upload.single('profilePic'), async (req, res) =>
         res.status(500).json({ message: err.message });
     }
 });
-
 router.get('/me', protect, async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
