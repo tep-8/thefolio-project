@@ -23,7 +23,7 @@
     /* Dark Mode (Formal & Professional) */
     --bg-color: #1a1a1a;
     --text-color: #e4e4e4;
-    --primary-color: #a3b8b0; 
+    --primary-color: #D4AF37; 
     --secondary-color: #d1b8a7;
     --accent-color: #7fa9c6;
     --surface-color: #262626;
@@ -66,7 +66,7 @@ header h1 {
     font-family: 'Playfair Display', serif;
     margin: 0;
     font-size: 2.5rem;
-    color: var(--secondary-color);
+    color: var(--primary-color);
     letter-spacing: -1px;
 }
 
@@ -190,6 +190,12 @@ section h2::after {
     height: 3px;
     background: var(--accent-color);
     margin-top: 10px;
+}
+
+section h1, section h2, section h3 {
+    font-family: 'Playfair Display', serif;
+    color: var(--primary-color) !important; /* Forces use of the gold variable */
+    margin-bottom: 25px;
 }
 
 .content-flex {
