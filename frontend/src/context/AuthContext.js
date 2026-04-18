@@ -36,16 +36,14 @@ export const AuthProvider = ({ children }) => {
 
   // login(): call the backend, save token, store user in state
   const login = async (email, password) => {
-  try {
-    const res = await API.post('/auth/login', { email, password });
-    localStorage.setItem('token', res.data.token);
-    localStorage.setItem('user', JSON.stringify(res.data)); 
-    setUser(res.data); 
-    
-    return res.data; // <--- CRITICAL: Without this, LoginPage gets 'undefined'
-  } catch (err) {
-    throw err;
-  }
+  const res = await API.post('/auth/login', { email, password });
+  localStorage.setItem('token', res.data.token);
+  
+  // Save EVERYTHING the backend sends (including the bio we just added)
+  localStorage.setItem('user', JSON.stringify(res.data)); 
+  setUser(res.data); 
+  
+  return res.data;
 };
 
   // logout(): clear token and user from memory

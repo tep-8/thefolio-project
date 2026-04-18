@@ -60,13 +60,14 @@ router.post('/login', async (req, res) => {
       // ---------------------------
 
       res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        profilePic: user.profilePic,
-        token: generateToken(user._id),
-      });
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  bio: user.bio,        // <--- ADD THIS LINE
+  profilePic: user.profilePic,
+  token: generateToken(user._id),
+});
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
     }
