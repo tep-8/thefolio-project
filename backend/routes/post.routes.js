@@ -3,8 +3,7 @@ const Post = require('../models/Post');
 const Comment = require('../models/Comment'); // Added this
 const protect = require('../middleware/auth.middleware');
 const { memberOrAdmin } = require('../middleware/role.middleware');
-const upload = require('../middleware/upload');
-const upload = require('../middleware/uploadMiddleware');
+const upload = require('../middleware/upload.middleware.js');
 
 const router = express.Router();
 
