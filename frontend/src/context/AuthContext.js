@@ -37,14 +37,16 @@ export const AuthProvider = ({ children }) => {
   // login(): call the backend, save token, store user in state
   const login = async (email, password) => {
   try {
-    // CHANGE THIS from '/users/login' to '/auth/login'
-    const { data } = await API.post('/auth/login', { email, password });
+    const res = await API.post('/auth/login', { email, password });
     
-    localStorage.setItem('token', data.token);
-    setUser(data);
-    return data;
+    // Save token
+    localStorage.setItem('token', res.data.token);
+    
+    // SAVE THE FULL USER OBJECT (including profilePic)
+    localStorage.setItem('user', JSON.stringify(res.data)); 
+    
+    setUser(res.data); // This updates the Navbar immediately
   } catch (err) {
-    console.error("Login Error:", err);
     throw err;
   }
 };

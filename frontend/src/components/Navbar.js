@@ -9,9 +9,10 @@ const Navbar = ({ isDark, setIsDark }) => {
   const isActive = (path) => location.pathname === path;
 
   const handleLogout = () => {
-    logout();         
-    navigate('/');    
-  };
+  logout(); // This should call the logout from Context
+  // Force a clean slate by navigating to the landing page
+  navigate('/', { replace: true }); 
+};
  // Add this helper function here
   const getAvatar = (user) => {
     if (user?.profilePic) {
