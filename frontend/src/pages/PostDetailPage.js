@@ -77,11 +77,18 @@ const PostDetailPage = () => {
           <span>{new Date(post.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}</span>
         </div>
 
-        {post.image && (
-          <div style={{ marginBottom: '40px' }}>
-            <img src={`http://localhost:5000/uploads/${post.image}`} alt={post.title} style={styles.mainImg} />
-          </div>
-        )}
+{post.image && (
+  <div style={{ marginBottom: '40px' }}>
+    {/* CHANGE THIS LINE: */}
+    <img 
+      src={process.env.REACT_APP_API_URL 
+        ? `${process.env.REACT_APP_API_URL.replace('/api', '/uploads')}/${post.image}` 
+        : `http://localhost:5000/uploads/${post.image}`} 
+      alt={post.title} 
+      style={styles.mainImg} 
+    />
+  </div>
+)}
 
         <div style={styles.content}>{post.content}</div>
       </article>

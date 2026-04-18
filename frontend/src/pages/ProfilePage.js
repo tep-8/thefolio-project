@@ -9,7 +9,10 @@ const ProfilePage = () => {
   const [myPosts, setMyPosts] = useState([]);
   const [loading, setLoading] = useState(true); // Line 10
 
-  const IMAGE_BASE_URL = 'http://localhost:5000/uploads/';
+  // Update Line 12 to this:
+const IMAGE_BASE_URL = process.env.REACT_APP_API_URL 
+  ? process.env.REACT_APP_API_URL.replace('/api', '/uploads/') 
+  : 'http://localhost:5000/uploads/';
 
   // Wrap in useCallback to stop the "missing dependency" warning
   const fetchMyPosts = useCallback(async () => {

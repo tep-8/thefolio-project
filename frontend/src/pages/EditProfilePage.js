@@ -12,7 +12,11 @@ const EditProfilePage = () => {
   const [name, setName] = useState(user?.name || '');
   const [bio, setBio] = useState(user?.bio || '');
   const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(user?.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '');
+ const IMAGE_BASE_URL = process.env.REACT_APP_API_URL 
+  ? process.env.REACT_APP_API_URL.replace('/api', '/uploads') 
+  : 'http://localhost:5000/uploads';
+
+const [preview, setPreview] = useState(user?.profilePic ? `${IMAGE_BASE_URL}/${user.profilePic}` : '');
 
   const handleFileChange = (e) => {
     const selected = e.target.files[0];

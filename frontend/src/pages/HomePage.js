@@ -12,7 +12,10 @@ const HomePage = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/posts');
+        // Use the environment variable if it exists, otherwise fall back to localhost
+        const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+        const res = await axios.get(`${API_BASE_URL}/posts`);
+        
         setPosts(res.data);
       } catch (err) {
         console.error("Error fetching posts:", err);
