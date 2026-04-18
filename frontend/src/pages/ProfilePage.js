@@ -49,26 +49,37 @@ const IMAGE_BASE_URL = process.env.REACT_APP_API_URL
 
   return (
     <div style={styles.pageWrapper}>
-      {/* Profile Header */}
       <section style={styles.headerSection}>
         <div style={styles.profileInfo}>
-          {/* UPDATED: Show Profile Pic if it exists */}
+          
+          {/* UPDATED AVATAR SECTION */}
           <div style={styles.avatar}>
             {user.profilePic ? (
               <img 
                 src={`${IMAGE_BASE_URL}${user.profilePic}`} 
                 alt="Profile" 
                 style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} 
+                // Safety net if the image link is broken
+                onError={(e) => { 
+                  e.target.onerror = null; 
+                  e.target.src = `https://ui-avatars.com/api/?name=${user.name}&background=1a1a1a&color=D4AF37&bold=true`; 
+                }}
               />
             ) : (
-              user.name?.charAt(0).toUpperCase()
+              /* This matches your gold-on-black aesthetic when no pic exists */
+              <img 
+                src={`https://ui-avatars.com/api/?name=${user.name}&background=1a1a1a&color=D4AF37&bold=true&size=128`} 
+                alt="Default Avatar"
+                style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+              />
             )}
           </div>
+
           <div style={styles.details}>
             <h1 style={styles.name}>{user.name}</h1>
             <p style={styles.bio}>{user.bio || "No bio yet."}</p>
             <div style={styles.stats}>
-              <strong>{myPosts.length}</strong> Stories &nbsp;
+              <strong>{myPosts.length}</strong> Stories
             </div>
           </div>
         </div>
