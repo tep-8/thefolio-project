@@ -12,7 +12,14 @@ const Navbar = ({ isDark, setIsDark }) => {
     logout();         
     navigate('/');    
   };
-
+ // Add this helper function here
+  const getAvatar = (user) => {
+    if (user?.profilePic) {
+      return `${IMAGE_BASE_URL}${user.profilePic}`;
+    }
+    // Fallback to the UI Avatars API if no profile pic exists
+    return `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=FAF9F6&color=D4AF37&bold=true`;
+  };
   const IMAGE_BASE_URL = 'https://thefolio-project-k8ep.onrender.com/uploads/';
 
   return (
@@ -45,10 +52,17 @@ const Navbar = ({ isDark, setIsDark }) => {
             {/* PROFILE PICTURE & NAME LINK */}
             <Link to="/profile" style={styles.profileLink}>
               <img 
-                src={user.profilePic ? `${IMAGE_BASE_URL}${user.profilePic}` : 'https://via.placeholder.com/35'} 
-                alt="Nav Avatar" 
-                style={styles.navAvatar}
-              />
+  src={getAvatar(user)} 
+  alt="Profile" 
+  style={{
+    width: '35px', 
+    height: '35px', 
+    borderRadius: '50%', 
+    objectFit: 'cover',
+    border: '1px solid #D4AF37' // Adding a thin gold border makes it pop
+  }} 
+  onError={(e) => { e.target.src = 'https://ui-avatars.com/api/?name=User&background=FAF9F6&color=D4AF37'; }}
+/>
               <span style={styles.userName}>
                 {user.role === 'admin' ? 'ADMIN' : user.name.toUpperCase()}
               </span>
