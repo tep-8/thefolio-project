@@ -45,10 +45,20 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // FORCE fetch the password hash using .select('+password')
+    // FORCE fetch the password hash and the status
     const user = await User.findOne({ email }).select('+password');
 
     if (user && (await user.matchPassword(password))) {
+      
+      // --- ADD THIS BLOCK HERE ---
+      // Check if the user's account is inactive
+      if (user.status === 'inactive') {
+        return res.status(403).json({ 
+          message: 'This account has been deactivated. Please contact the administrator.' 
+        });
+      }
+      // ---------------------------
+
       res.json({
         _id: user._id,
         name: user.name,
@@ -69,6 +79,12 @@ router.post('/login', async (req, res) => {
 router.get('/me', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
+    
+    // Kick them out if they are inactive
+    if (user.status === 'inactive') {
+      return res.status(403).json({ message: 'Account deactivated.' });
+    }
+
     res.json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });
