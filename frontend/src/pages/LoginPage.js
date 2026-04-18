@@ -27,19 +27,14 @@ const LoginPage = () => {
   e.preventDefault();
   setError('');
   setLoading(true);
-
   try {
-    const result = await login(email, password);
-    
-    // Only proceed if result exists (meaning AuthContext returned the user)
-    if (result) {
-      navigate(result.role === 'admin' ? '/admin' : '/home', { replace: true });
-      return; // Exit the function immediately
+    const loggedInUser = await login(email, password);
+    if (loggedInUser) {
+      navigate('/home', { replace: true });
     }
   } catch (err) {
-    // Only shows if the backend actually returns an error (e.g., 401)
     setError(err.response?.data?.message || 'Invalid email or password.');
-    setLoading(false); 
+    setLoading(false);
   }
 };
 
