@@ -31,10 +31,10 @@ const SplashPage = () => {
 
       <div className="splash-content" style={styles.content}>
         {/* The Sparkle/Star Icon */}
-        <div className="splash-icon" style={styles.icon}>✦</div>
+        <img src={"/images/moon.png"} alt="Logo" style={styles.logoImage} />
         
-        <h1 style={styles.title}>My Portfolio</h1>
-        <p style={styles.subtitle}>Loading your experience...</p>
+        <h1 style={styles.title}>Dreams Rewritten</h1>
+        <p style={styles.subtitle}>Loading your experience to Grow Beyond the Dream...</p>
         
         {/* The Animated Progress Bar */}
         <div className="progress-container" style={styles.progressContainer}>

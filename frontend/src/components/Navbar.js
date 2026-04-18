@@ -13,17 +13,17 @@ const Navbar = ({ isDark, setIsDark }) => {
     navigate('/');    
   };
 
-  const IMAGE_BASE_URL = 'http://localhost:5000/uploads/';
+  const IMAGE_BASE_URL = 'https://thefolio-project-k8ep.onrender.com/uploads/';
 
   return (
     <nav style={styles.nav}>
       {/* 1. Branding Section */}
       <div style={styles.brandGroup}>
         <Link to="/" style={styles.logoLink}>
-          <span style={styles.logoSparkle}>✦</span>
+          <img src={"/images/moon.png"} alt="Logo" style={styles.logoImage} />
           <div style={styles.logoTextWrapper}>
-            <h1 style={styles.logoTitle}>STEPHANIE MAE</h1>
-            <p style={styles.logoSub}>GUBATAN</p>
+            <h1 style={styles.logoTitle}>DREAMS REWRITTEN</h1>
+            <p style={styles.logoSub}>Not the Dream, Still the Journey</p>
           </div>
         </Link>
       </div>

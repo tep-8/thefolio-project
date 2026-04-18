@@ -7,7 +7,7 @@ const HomePage = () => {
   const [loadingPosts, setLoadingPosts] = useState(true);
 
   // Base URL for images
-  const IMAGE_BASE_URL = 'http://localhost:5000/uploads/';
+  const IMAGE_BASE_URL = 'https://thefolio-project-k8ep.onrender.com/uploads/';
 
   useEffect(() => {
     const fetchPosts = async () => {
