@@ -38,16 +38,11 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
   try {
     const res = await API.post('/auth/login', { email, password });
-    
-    // Save token
     localStorage.setItem('token', res.data.token);
-    
-    // SAVE THE FULL USER OBJECT (including profilePic)
     localStorage.setItem('user', JSON.stringify(res.data)); 
-
-    setUser(res.data); // This updates the Navbar immediately
+    setUser(res.data); 
     
-    return res.data;
+    return res.data; // <--- CRITICAL: Without this, LoginPage gets 'undefined'
   } catch (err) {
     throw err;
   }

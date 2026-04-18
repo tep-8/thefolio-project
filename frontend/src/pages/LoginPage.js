@@ -24,28 +24,24 @@ const LoginPage = () => {
 
   // --- HANDLER ---
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+  e.preventDefault();
+  setError('');
+  setLoading(true);
 
-    try {
-      // 1. login() now returns the user object thanks to your Context fix
-      const loggedInUser = await login(email, password);
-      
-      // 2. We check if it worked, then navigate
-      if (loggedInUser) {
-        // 'replace: true' wipes the login page from the back-button history
-        const targetPath = loggedInUser.role === 'admin' ? '/admin' : '/home';
-        navigate(targetPath, { replace: true });
-      }
-    } catch (err) {
-      // 3. This ONLY runs if the server actually sends a 401/400 error
-      console.error("Login Error:", err);
-      setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
-    } finally {
-      setLoading(false);
+  try {
+    const result = await login(email, password);
+    
+    // Only proceed if result exists (meaning AuthContext returned the user)
+    if (result) {
+      navigate(result.role === 'admin' ? '/admin' : '/home', { replace: true });
+      return; // Exit the function immediately
     }
-  };
+  } catch (err) {
+    // Only shows if the backend actually returns an error (e.g., 401)
+    setError(err.response?.data?.message || 'Invalid email or password.');
+    setLoading(false); 
+  }
+};
 
   return (
     <div className="login-page-wrapper">
