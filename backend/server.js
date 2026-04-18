@@ -27,9 +27,12 @@ connectDB();
 // ── Middleware ─────────────────────────────────────────────────
 
 // Allow React (port 3000) to call this server
-app.use(cors({ 
-    origin: ['http://localhost:3000', 'http://localhost:3001'], 
-    credentials: true 
+app.use(cors({
+origin:[
+'http://localhost:3000',
+'https://thefolio.vercel.app', // ←your Vercel URL (update afterdeployment)
+],
+credentials:true,
 }));
 
 // Parse incoming JSON request bodies
