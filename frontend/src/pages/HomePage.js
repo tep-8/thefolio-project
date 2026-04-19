@@ -71,17 +71,18 @@ const HomePage = () => {
                   
                   {/* POST IMAGE SECTION */}
                   <div style={styles.imageContainer}>
-                    {post.image ? (
-                      <img 
-                        src={`${IMAGE_BASE_URL}${post.image}`} 
-                        alt={post.title}
-                        style={styles.cardImg}
-                        onError={(e) => { e.target.src = 'https://via.placeholder.com/400x200?text=Stephanie+Mae+Folio'; }}
-                      />
-                    ) : (
-                      <div style={styles.placeholderImg}>✦</div>
-                    )}
-                  </div>
+  {post.image ? (
+    <img 
+      /* REMOVE IMAGE_BASE_URL here! post.image is already a full URL */
+      src={post.image} 
+      alt={post.title}
+      style={styles.cardImg}
+      onError={(e) => { e.target.src = 'https://via.placeholder.com/400x200?text=Stephanie+Mae+Folio'; }}
+    />
+  ) : (
+    <div style={styles.placeholderImg}>✦</div>
+  )}
+</div>
 
                   {/* CARD CONTENT */}
                   <div style={styles.cardBody}>
@@ -90,18 +91,18 @@ const HomePage = () => {
                     
                     {/* --- AUTHOR ROW (NEW) --- */}
                     <div style={styles.authorRow}>
-                      <img 
-                        src={post.author?.profilePic 
-                          ? `${IMAGE_BASE_URL}${post.author.profilePic}` 
-                          : 'https://via.placeholder.com/40x40?text=S'} 
-                        alt={post.author?.name} 
-                        style={styles.smallAvatar} 
-                      />
-                      <div style={styles.authorMeta}>
-                        <span style={styles.authorName}>{post.author?.name || 'Member'}</span>
-                        <span style={styles.postDate}>{new Date(post.createdAt).toLocaleDateString()}</span>
-                      </div>
-                    </div>
+  <img 
+    src={post.author?.profilePic 
+      ? post.author.profilePic  /* REMOVE IMAGE_BASE_URL here too! */
+      : 'https://via.placeholder.com/40x40?text=S'} 
+    alt={post.author?.name} 
+    style={styles.smallAvatar} 
+  />
+  <div style={styles.authorMeta}>
+    <span style={styles.authorName}>{post.author?.name || 'Member'}</span>
+    <span style={styles.postDate}>{new Date(post.createdAt).toLocaleDateString()}</span>
+  </div>
+</div>
 
                     <p style={styles.excerpt}>
                       {post.content.substring(0, 90)}...
