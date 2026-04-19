@@ -34,26 +34,24 @@ const ContactPage = () => {
  const [isSubmitting, setIsSubmitting] = useState(false);
   
  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // 1. Check if the function even starts
-    console.log("Submit button clicked! Attempting to send...");
+  e.preventDefault();
+  
+  // We can keep the console log for your own sanity checks
+  console.log("Sending message to database...");
 
-    try {
-      // 2. The actual API call
-      const response = await API.post('/messages', formData);
-      
-      console.log("Server Response:", response.data);
-      
-      // 3. If successful, show the success UI
-      setIsSubmitted(true);
-      window.alert("Success! Message sent to the database.");
-    } catch (err) {
-      // 4. If it fails, tell us why
-      console.error("API Error:", err.response || err);
-      window.alert("Connection failed! Check the console.");
-    }
-  };
+  try {
+    // This is the functional part that talks to MongoDB
+    await API.post('/messages', formData);
+    
+    // Instead of an alert, we just trigger the success view
+    setIsSubmitted(true); 
+  } catch (err) {
+    console.error("Submission failed:", err);
+    // It's good practice to keep an error alert just in case 
+    // the server goes down, so the user isn't left wondering.
+    alert("Sorry, I couldn't receive your message. Please try again later!");
+  }
+};
 
   const handleReset = () => {
     setFormData({ name: '', email: '', message: '' });
