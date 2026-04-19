@@ -72,20 +72,25 @@ const PostDetailPage = () => {
         <h1 style={styles.title}>{post.title}</h1>
         
         <div style={styles.meta}>
-          <strong>{post.author?.name || 'Community Member'}</strong>
-          <span>•</span>
-          <span>{new Date(post.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}</span>
-        </div>
+  {post.author?.profilePic && (
+    <img 
+      src={post.author.profilePic} 
+      alt={post.author.name} 
+      style={{ width: '30px', height: '30px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #D4AF37' }} 
+    />
+  )}
+  <strong>{post.author?.name || 'Community Member'}</strong>
+  <span>•</span>
+  <span>{new Date(post.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}</span>
+</div>
 
 {post.image && (
   <div style={{ marginBottom: '40px' }}>
-    {/* CHANGE THIS LINE: */}
     <img 
-      src={process.env.REACT_APP_API_URL 
-        ? `${process.env.REACT_APP_API_URL.replace('/api', '/uploads')}/${post.image}` 
-        : `http://localhost:5000/uploads/${post.image}`} 
+      src={post.image} // Just use post.image directly!
       alt={post.title} 
       style={styles.mainImg} 
+      onError={(e) => { e.target.src = 'https://via.placeholder.com/800x400?text=Stephanie+Mae+Folio'; }}
     />
   </div>
 )}
