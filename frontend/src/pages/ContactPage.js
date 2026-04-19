@@ -31,11 +31,23 @@ const ContactPage = () => {
       [name]: value
     }));
   };
-
-  const handleSubmit = (e) => {
+ const [isSubmitting, setIsSubmitting] = useState(false);
+  
+ const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form submitted for:", formData.name);
-    setIsSubmitted(true);
+
+    try {
+      // THIS IS THE LINE THAT TRIGGERS THE NETWORK TAB
+      const response = await API.post('/messages', formData);
+      
+      if (response.data.success) {
+        setIsSubmitted(true);
+      }
+    } catch (err) {
+      console.error("Connection to backend failed:", err);
+      alert("Something went wrong on the server side.");
+    }
   };
 
   const handleReset = () => {
