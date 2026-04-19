@@ -13,6 +13,7 @@ const EditPostPage = () => {
   const [category, setCategory] = useState('General');
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -39,25 +40,32 @@ const EditPostPage = () => {
   }, [id, navigate, user]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setUpdating(true);
+  e.preventDefault();
+  setUpdating(true);
 
-    const updateData = {
-      title,
-      content,
-      category
-    };
+  // Use FormData to handle potential image uploads
+  const data = new FormData();
+  data.append('title', title);
+  data.append('content', content);
+  data.append('category', category);
+  
+  // Only append if the user actually picked a new file
+  if (imageFile) {
+    data.append('image', imageFile);
+  }
 
-    try {
-      await API.put(`/posts/${id}`, updateData);
-      alert("Changes saved to your folio! ✦");
-      navigate('/profile');
-    } catch (err) {
-      alert(err.response?.data?.message || "Update failed.");
-    } finally {
-      setUpdating(false);
-    }
-  };
+  try {
+    await API.put(`/posts/${id}`, data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    alert("Changes saved to your folio! ✦");
+    navigate('/profile');
+  } catch (err) {
+    alert(err.response?.data?.message || "Update failed.");
+  } finally {
+    setUpdating(false);
+  }
+};
 
   // NEW: Handle Delete Function
   const handleDelete = async () => {
@@ -97,18 +105,17 @@ const EditPostPage = () => {
         </div>
 
         <div style={styles.inputGroup}>
-          <label style={styles.label}>CATEGORY</label>
-          <select 
-            value={category} 
-            onChange={(e) => setCategory(e.target.value)} 
-            style={styles.select}
-          >
-            <option value="General">General</option>
-            <option value="Travel">Travel</option>
-            <option value="Academic">Academic</option>
-            <option value="Personal">Personal</option>
-          </select>
-        </div>
+  <label style={styles.label}>UPDATE IMAGE (OPTIONAL)</label>
+  <input 
+    type="file" 
+    accept="image/*" 
+    onChange={(e) => setImageFile(e.target.files[0])} 
+    style={styles.input} 
+  />
+  <p style={{ fontSize: '0.7rem', color: '#999', marginTop: '5px' }}>
+    Leave empty to keep your current photo.
+  </p>
+</div>
 
         <div style={styles.inputGroup}>
           <label style={styles.label}>STORY CONTENT</label>
