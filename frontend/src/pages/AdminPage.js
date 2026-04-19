@@ -9,29 +9,34 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch Users
       try {
-        console.log("Admin Dashboard: Fetching data...");
-        
-        // Fetch all three data sets simultaneously
-        const [usersRes, postsRes, messagesRes] = await Promise.all([
-          API.get('/admin/users'),
-          API.get('/admin/posts'),
-          API.get('/messages') // Ensure this route is accessible to admins
-        ]);
-        
+        const usersRes = await API.get('/admin/users');
         setUsers(usersRes.data);
-        setPosts(postsRes.data);
-        setMessages(messagesRes.data);
-      } catch (err) {
-        console.error("Admin data fetch failed:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      } catch (e) { console.error("Users fetch failed:", e); }
 
-    fetchData();
-  }, []);
+      // Fetch Posts
+      try {
+        const postsRes = await API.get('/admin/posts');
+        setPosts(postsRes.data);
+      } catch (e) { console.error("Posts fetch failed:", e); }
+
+      // Fetch Messages
+      try {
+        const messagesRes = await API.get('/messages');
+        setMessages(messagesRes.data);
+      } catch (e) { console.error("Messages fetch failed (404):", e); }
+
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchData();
+}, []);
 
   const toggleStatus = async (id) => {
     try {
