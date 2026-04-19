@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import API from '../api/axios'; // 1. Use your smart instance
+import API from '../api/axios';
 
 const AdminPage = () => {
   const [users, setUsers] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [messages, setMessages] = useState([]); // NEW: Message state
   const [tab, setTab] = useState('users');
   const [loading, setLoading] = useState(true);
 
@@ -12,12 +13,16 @@ const AdminPage = () => {
       try {
         console.log("Admin Dashboard: Fetching data...");
         
-        // 2. Use API instance (no need to pass authConfig manually anymore!)
-        const usersRes = await API.get('/admin/users');
-        const postsRes = await API.get('/admin/posts');
+        // Fetch all three data sets simultaneously
+        const [usersRes, postsRes, messagesRes] = await Promise.all([
+          API.get('/admin/users'),
+          API.get('/admin/posts'),
+          API.get('/messages') // Ensure this route is accessible to admins
+        ]);
         
         setUsers(usersRes.data);
         setPosts(postsRes.data);
+        setMessages(messagesRes.data);
       } catch (err) {
         console.error("Admin data fetch failed:", err);
       } finally {
@@ -30,10 +35,7 @@ const AdminPage = () => {
 
   const toggleStatus = async (id) => {
     try {
-      // 3. Changed axios.put to API.put and removed manual config
       const { data } = await API.put(`/admin/users/${id}/status`, {});
-      
-      // Backend returns { message, user }, so we map data.user into state
       setUsers(users.map(u => u._id === id ? data.user : u));
     } catch (err) {
       console.error("Status update failed:", err);
@@ -44,10 +46,7 @@ const AdminPage = () => {
   const removePost = async (id) => {
     if (!window.confirm("Are you sure you want to remove this post?")) return;
     try {
-      // 4. Changed axios.put to API.put
       await API.put(`/admin/posts/${id}/remove`, {});
-      
-      // Optimistically update UI
       setPosts(posts.map(p => p._id === id ? { ...p, status: 'removed' } : p));
     } catch (err) {
       console.error("Post removal failed:", err);
@@ -55,13 +54,25 @@ const AdminPage = () => {
     }
   };
 
-  if (loading) return <div className="p-10 text-center text-gray-500">Loading Management Console...</div>;
+  // NEW: Delete Message Logic
+  const deleteMessage = async (id) => {
+    if (!window.confirm("Permanently delete this message?")) return;
+    try {
+      await API.delete(`/messages/${id}`);
+      setMessages(messages.filter(m => m._id !== id));
+    } catch (err) {
+      console.error("Message deletion failed:", err);
+      alert("Failed to delete message");
+    }
+  };
+
+  if (loading) return <div className="p-10 text-center text-gray-500 italic">Unfolding the Command Center...</div>;
 
   return (
     <div className="max-w-6xl mx-auto p-6 min-h-screen bg-white">
-      {/* Tab UI and Tables remain the same as your version */}
+      {/* Header & Navigation */}
       <div className="flex justify-between items-center mb-8 border-b pb-4">
-        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: "'Playfair Display', serif" }}>Admin Dashboard</h1>
         <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg">
           <button 
             onClick={() => setTab('users')}
@@ -75,10 +86,16 @@ const AdminPage = () => {
           >
             All Posts ({posts.length})
           </button>
+          <button 
+            onClick={() => setTab('messages')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition ${tab === 'messages' ? 'bg-white shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            Inbox ({messages.length})
+          </button>
         </div>
       </div>
 
-      {/* Users Management Table */}
+      {/* 1. Users Management Table */}
       {tab === 'users' && (
         <div className="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 rounded-lg">
           <table className="min-w-full divide-y divide-gray-300">
@@ -115,7 +132,7 @@ const AdminPage = () => {
         </div>
       )}
 
-      {/* Posts Management Table */}
+      {/* 2. Posts Management Table */}
       {tab === 'posts' && (
         <div className="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 rounded-lg">
           <table className="min-w-full divide-y divide-gray-300">
@@ -144,15 +161,62 @@ const AdminPage = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       {p.status !== 'removed' ? (
-                        <button 
-                          onClick={() => removePost(p._id)}
-                          className="text-red-600 hover:text-red-900 font-medium"
-                        >
-                          Remove
-                        </button>
+                        <button onClick={() => removePost(p._id)} className="text-red-600 hover:text-red-900 font-medium">Remove</button>
                       ) : (
                         <span className="text-gray-400 italic">Hidden</span>
                       )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* 3. NEW: Inbox / Messages Table */}
+      {tab === 'messages' && (
+        <div className="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+          <table className="min-w-full divide-y divide-gray-300">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Sender</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Message</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Date</th>
+                <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Action</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {messages.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="px-6 py-10 text-center text-gray-400">Your inbox is currently empty.</td>
+                </tr>
+              ) : (
+                messages.map(m => (
+                  <tr key={m._id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{m.name}</div>
+                      <div className="text-sm text-gray-500">{m.email}</div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500 max-w-md">
+                      <p className="line-clamp-2">{m.message}</p>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(m.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                     <a 
+  href={`mailto:${m.email}?subject=Regarding your message on Stephanie's Folio&body=Hi ${m.name},%0D%0A%0D%0A`} 
+  className="text-indigo-600 hover:text-indigo-900 mr-4 font-medium"
+>
+  Reply
+</a>
+                      <button 
+                        onClick={() => deleteMessage(m._id)}
+                        className="text-red-600 hover:text-red-900 font-medium"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))
