@@ -14,6 +14,7 @@ const postRoutes = require('./routes/post.routes');
 const commentRoutes = require('./routes/comment.routes');
 const adminRoutes = require('./routes/admin.routes');
 const userRoutes = require('./routes/user.routes');
+const messageRoutes = require('./routes/message.routes');
 
 
 const app = express();
@@ -46,6 +47,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);     // Use the variables you imported at the top
 app.use('/api/comments', commentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/messages', messageRoutes);
 
 // FIX: Only use user.routes for the /api/users prefix
 app.use('/api/users', userRoutes);
