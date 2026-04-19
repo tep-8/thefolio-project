@@ -98,18 +98,23 @@ const CreatePostPage = () => {
             </div>
 
             {/* 5. IMAGE UPLOAD SECTION - Only for Admin */}
-            {user.role === 'admin' && (
-              <div className="form-group" style={{ marginTop: '15px' }}>
-                <label style={{ color: '#D4AF37' }}>✦ Upload Cover Image (Admin Only)</label>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={handleFileChange}
-                  style={{ marginTop: '5px', padding: '10px', border: '1px dashed #D4AF37', width: '100%' }}
-                />
-              </div>
-            )}
-
+            {/* 5. IMAGE UPLOAD SECTION - Now available for all registered Members */}
+<div className="form-group" style={{ marginTop: '15px' }}>
+  <label style={{ color: 'var(--primary-color)' }}>✦ Add a Photo to your Post (Optional)</label>
+  <input 
+    type="file" 
+    accept="image/*" 
+    onChange={handleFileChange}
+    disabled={isPosting}
+    style={{ 
+      marginTop: '5px', 
+      padding: '10px', 
+      border: '1px dashed var(--primary-color)', 
+      width: '100%',
+      cursor: 'pointer'
+    }}
+  />
+</div>
             <div className="form-group" style={{ marginTop: '15px' }}>
               <label>Category</label>
               <select name="category" value={postData.category} onChange={handleChange}>

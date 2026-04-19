@@ -39,11 +39,12 @@ router.get('/:id', async (req, res) => {
 // POST /api/posts — Member or Admin: create new post
 router.post('/', protect, upload.single('image'), async (req, res) => {
     try {
-        if (req.file && req.user.role !== 'admin') {
-            return res.status(403).json({ message: "Only Admins can upload images to posts." });
-        }
+        // 1. REMOVED the "Only Admin" check here so members can upload too
+        
         const { title, content, category } = req.body; 
-        const image = req.file ? req.file.filename : '';
+
+        // 2. CHANGE: Use req.file.path (the Cloudinary URL) instead of .filename
+        const image = req.file ? req.file.path : '';
 
         if (!title || !content) {
             return res.status(400).json({ message: "Title and Content are required." });
@@ -53,7 +54,7 @@ router.post('/', protect, upload.single('image'), async (req, res) => {
             title, 
             content, 
             category,
-            image, 
+            image, // This is now a full https URL
             author: req.user._id 
         });
 
@@ -64,6 +65,7 @@ router.post('/', protect, upload.single('image'), async (req, res) => {
     }
 });
 
+// PUT /api/posts/:id — Edit: only post owner OR admin
 // PUT /api/posts/:id — Edit: only post owner OR admin
 router.put('/:id', protect, upload.single('image'), async (req, res) => {
     try {
@@ -77,14 +79,14 @@ router.put('/:id', protect, upload.single('image'), async (req, res) => {
             return res.status(403).json({ message: 'Not authorized' });
         }
 
-        if (req.file && !isAdmin) {
-             return res.status(403).json({ message: "Only Admins can add images to posts." });
-        }
-
+        // 3. REMOVED the "Only Admin" check for editing images
+        
         if (req.body.title) post.title = req.body.title;
         if (req.body.content) post.content = req.body.content;
         if (req.body.category) post.category = req.body.category; 
-        if (req.file) post.image = req.file.filename;
+        
+        // 4. CHANGE: Use req.file.path for the update
+        if (req.file) post.image = req.file.path;
 
         await post.save();
         res.json(post);
