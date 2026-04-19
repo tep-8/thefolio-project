@@ -35,18 +35,23 @@ const ContactPage = () => {
   
  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted for:", formData.name);
+    
+    // 1. Check if the function even starts
+    console.log("Submit button clicked! Attempting to send...");
 
     try {
-      // THIS IS THE LINE THAT TRIGGERS THE NETWORK TAB
+      // 2. The actual API call
       const response = await API.post('/messages', formData);
       
-      if (response.data.success) {
-        setIsSubmitted(true);
-      }
+      console.log("Server Response:", response.data);
+      
+      // 3. If successful, show the success UI
+      setIsSubmitted(true);
+      window.alert("Success! Message sent to the database.");
     } catch (err) {
-      console.error("Connection to backend failed:", err);
-      alert("Something went wrong on the server side.");
+      // 4. If it fails, tell us why
+      console.error("API Error:", err.response || err);
+      window.alert("Connection failed! Check the console.");
     }
   };
 
